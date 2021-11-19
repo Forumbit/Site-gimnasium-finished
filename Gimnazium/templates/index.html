@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ru" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}Главная страница{% endblock %}</title>
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+          integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
+          crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+            integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+            integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+            integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+            crossorigin="anonymous"></script>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color:#4A031E;">
+    <a class="navbar-brand" href="#">Gimnazium</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+            aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="{% url 'index_url' %}">Главная</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/">Админ</a>
+            </li>
+        </ul>
+        <form class="form-inline my-2 my-lg-0">
+            <input class="form-control mr-sm-2" type="search" placeholder="Поиск"
+                   aria-label="Поиск">
+            <button class="btn btn-outline-danger my-2 my-sm-0" type="submit">Поиск</button>
+        </form>
+    </div>
+</nav>
+<div class="container">
+    {% block content %}
+    {% if not request.user.is_authenticated %}
+    <div class="text-center mt-5">
+        <div class="alert alert-danger">
+            Вы не авторизованы. Пожалуйста авторизуйтесь по <a href="/admin/">ссылке</a>.
+        </div>
+    </div>
+    {% endif %}
+    <button type="button" class="btn-lg btn-secondary mt-5" data-toggle="modal"
+            data-target="#exampleModal01">
+        Удалить все
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal01" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel01">Внимание!</h5>
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Вы точно хотите удалить <b>ВСЕ</b> замены?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                            data-dismiss="modal">Отмена
+                    </button>
+                    <form action="{% url 'delete_all_url' %}" method="post">
+                        {% csrf_token %}
+                        <button class="btn btn-danger" type="submit">Удалить все</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <a href="{% url 'create_url' %}">
+        <button class="btn btn-lg mt-5 float-right mb-2 text-white" style="background:#4A031E;">
+            Добавить
+            +
+        </button>
+    </a>
+    {% if zamena %}
+    <table class="table table-striped mt-5 rounded">
+        <thead class="text-center">
+        <tr>
+            <th scope="col">Урок</th>
+            <th scope="col">Предмет</th>
+            <th scope="col">Класс</th>
+            <th scope="col">Кабинет</th>
+            <th scope="col">Действие</th>
+        </tr>
+        </thead>
+        <tbody class="text-center">
+        {% for i in zamena %}
+        <tr>
+            <td style="vertical-align:middle;" class="zamena">{{ i.how_lesson }}</td>
+            <td style="vertical-align:middle;" class="zamena">{{ i.predmet }}</td>
+            <td style="vertical-align:middle;" class="zamena">{{ i.lesson }} "{{ i.letter }}"</td>
+            <td style="vertical-align:middle;" class="zamena">{{ i.cabinet }}</td>
+            <td>
+                <a href="{% url 'edit_url' i.pk %}">
+                    <button class="btn btn-success">Изменить</button>
+                </a>
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-outline-danger" data-toggle="modal"
+                        data-target="#exampleModal{{i.pk}}">
+                    Удалить
+                </button>
+
+                <!-- Modal -->
+                <div class="modal fade" id="exampleModal{{i.pk}}" tabindex="-1" role="dialog"
+                     aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Внимание!</h5>
+                                <button type="button" class="close" data-dismiss="modal"
+                                        aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                Вы точно хотите удалить текущую замену?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary"
+                                        data-dismiss="modal">Отмена
+                                </button>
+                                <form action="{% url 'delete_url' i.pk %}" method="post"
+                                      style="display: inline-block;">
+                                    {% csrf_token %}
+                                    <button class="btn btn-danger" type="submit">Удалить</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% elif not zamena %}
+    <div>
+        <h1 class="zamena text-center">Замен нет</h1>
+    </div>
+    {% endif %}
+    <br><br>
+    <hr>
+    <br><br>
+    {% if not addit %}
+    <div class="text-center mt-5">
+        <h1>
+            Новостей нет
+            <a href="{% url 'addit_create_url' %}">
+                <button class="btn btn-lg text-white"
+                        style="background:#4A031E;">
+                    Добавить
+                    +
+                </button>
+            </a>
+        </h1>
+
+    </div>
+    {% elif addit %}
+    <div class="text-center">
+        <h5>Новости</h5>
+        <a href="{% url 'addit_create_url' %}">
+            <button class="btn btn-lg text-white"
+                    style="background:#4A031E;">
+                Добавить
+                +
+            </button>
+        </a>
+    </div>
+    <table class="table table-striped mt-5 rounded">
+        <thead class="text-center">
+        <tr>
+            <th scope="col">Название новости</th>
+            <th scope="col">Описание новости</th>
+            <th scope="col">Действие</th>
+        </tr>
+        </thead>
+        <tbody class="text-center">
+        {% for i in addit %}
+        <tr>
+            <td style="vertical-align:middle;" class="additional">{{ i.title }}</td>
+            <td style="vertical-align:middle;" class="additional">{{ i.description }}</td>
+            <td>
+                <a href="{% url 'addit_update_url' i.pk %}">
+                    <button class="btn btn-success">Изменить</button>
+                </a>
+                <button type="button" class="btn btn-outline-danger" data-toggle="modal"
+                        data-target="#exampleModal_addit{{i.pk}}">
+                    Удалить
+                </button>
+
+
+                <!-- Modal -->
+                <div class="modal fade" id="exampleModal_addit{{i.pk}}" tabindex="-1" role="dialog"
+                     aria-labelledby="exampleModalLabel_addit" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel_addit">Внимание!</h5>
+                                <button type="button" class="close" data-dismiss="modal"
+                                        aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                Вы точно хотите удалить текущую новость?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary"
+                                        data-dismiss="modal">Отмена
+                                </button>
+                                <form action="{% url 'addit_delete_url' i.pk %}" method="post"
+                                      style="display: inline-block;">
+                                    {% csrf_token %}
+                                    <button class="btn btn-danger" type="submit">Удалить</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <br><br><br>
+    {% endif %}
+    {% endblock %}
+
+</div>
+
+</body>
+</html>
